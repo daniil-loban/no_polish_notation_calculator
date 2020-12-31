@@ -2,12 +2,13 @@ const op = ['\\*\\*', '\\*', '\\/', '\\+', '\\-']
 const opName = ['pow', 'mul', 'div', 'plus', 'minus']
 
 function calculate (expr){
-  const br = expr.match(/\(([^()]+)\)/);
-  if (br){
-    const left = expr.slice(0, br.index);
-    const right = expr.slice(br.index + br[1].length + 2);
-    const e = getResult(br[1]);
-    return calculate(left + e + right)
+  const brackets = expr.match(/\(([^()]+)\)/);         // deep bracket
+  if (brackets){
+    const left = expr.slice(0, brackets.index);        // before bracket 
+    const right = expr
+      .slice(brackets.index + brackets[1].length + 2); // after bracket
+    const bracketsValue = getResult(brackets[1]);      // evaluate bracket
+    return calculate(left + bracketsValue + right)
   } else {
     return(getResult(expr))
   }  
@@ -15,28 +16,29 @@ function calculate (expr){
 
 function getResult(expr){
   if(expr.match(/^[.0-9]*$/)) return expr;
-  for(let i=0; i < op.length; ++i){
-    const leftOp = expr.match(new RegExp(`([.0-9]*)${op[i]}[.0-9]*`))
-    const rightOp = expr.match(new RegExp(`[.0-9]*${op[i]}([.0-9]*)`))
-    let res;
-    if (leftOp) {
+  for(let i=0; i < op.length; ++i){ // get operation by priority
+    const leftOperand = expr.match(new RegExp(`([.0-9]*)${op[i]}[.0-9]*`)) 
+    const rightOperand = expr.match(new RegExp(`[.0-9]*${op[i]}([.0-9]*)`))
+    let operationResult;
+    if (leftOperand) {
       switch(opName[i]){
-        case 'pow': res = Number(leftOp[1]) ** Number(rightOp[1])
+        case 'pow': operationResult = Number(leftOperand[1]) ** Number(rightOperand[1])
           break;
-        case 'mul': res = Number(leftOp[1]) * Number(rightOp[1])
+        case 'mul': operationResult = Number(leftOperand[1]) * Number(rightOperand[1])
           break;
-        case 'div': res = Number(leftOp[1]) / Number(rightOp[1])
+        case 'div': operationResult = Number(leftOperand[1]) / Number(rightOperand[1])
           break;
-        case 'plus': res = Number(leftOp[1]) + Number(rightOp[1])
+        case 'plus': operationResult = Number(leftOperand[1]) + Number(rightOperand[1])
           break;
-        case 'minus': res = Number(leftOp[1]) - Number(rightOp[1])
+        case 'minus': operationResult = Number(leftOperand[1]) - Number(rightOperand[1])
           break;
       }
-      const left = expr.slice(0, leftOp.index);
-      const right = expr.slice(leftOp.index + leftOp[0].length);
-      return getResult(left + res + right)
+      const left = expr.slice(0, leftOperand.index);       // before current operation
+      const right = expr
+        .slice(leftOperand.index + leftOperand[0].length); // after current operation
+      return getResult(left + operationResult + right)
     }
   }
 }
 
-console.log(calculate('1+(2/(4/5)+3)')) // 6.5
+console.log(calculate('(2**2+3)*2+1')) // result 15
