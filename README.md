@@ -1,1 +1,1 @@
-# no_polish_notation_calculator
+# it's not polish notation calculator
